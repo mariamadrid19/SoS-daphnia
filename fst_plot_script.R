@@ -1,5 +1,5 @@
 ##################################################
-# R Script: Exploring Genetic Data from chr1.vcf.gz
+# R Script: Exploring Genetic Data from chr3.vcf.gz
 # Goal: Learn to work with real genomic data in R
 # Author: Maria Madrid
 # Date: July 31st 2025
@@ -23,7 +23,7 @@ library(ggplot2)
 ### -------------------------------
 
 # Change the path below if needed
-vcf_file <- "chr1.vcf.gz" 
+vcf_file <- "chr3.vcf.gz" 
 vcf <- read.vcfR(vcf_file)
 
 # Quick summary of the VCF contents
