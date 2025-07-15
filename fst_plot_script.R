@@ -1,5 +1,5 @@
-##################################################
-# R Script: Exploring Genetic Data from chr3.vcf.gz
+# ##################################################
+# R Script: Exploring Genetic Data from chr3.stats
 # Goal: Learn to work with real genomic data in R
 # Author: Maria Madrid
 # Date: July 31st 2025
@@ -11,78 +11,70 @@
 
 # These lines install the necessary packages
 # Run them once; then you can comment them out (add a # at the start of the line to comment them out)
-install.packages("vcfR")
+install.packages("tidyverse")
 install.packages("ggplot2")
+install.packages("readr")
+install.packages("scales")
 
-# Load the libraries
-library(vcfR)
+library(tidyverse)
 library(ggplot2)
+library(readr)
+library(scales)
 
 ### -------------------------------
-### 2. Load the VCF file
+### 2. Load the stats file
 ### -------------------------------
 
-# Change the path below if needed
-vcf_file <- "chr3.vcf.gz" 
-vcf <- read.vcfR(vcf_file)
+# Read the stats file you downloaded and placed in your Downloads folder
+stats <- read.csv("chr3.stats")
 
-# Quick summary of the VCF contents
-summary(vcf)
-
-### -------------------------------
-### 3. View genotype data
-### -------------------------------
-
-# Extract the genotype matrix
-genotypes <- extract.gt(vcf)
-
-# Show the first few rows
-head(genotypes)
-
-# These look like: 0/0, 0/1, 1/1 = homozygous ref, heterozygous, homozygous alt
+# View the first few rows to understand the structure
+head(stats)
 
 ### -------------------------------
-### 4. Visualize missing data per individual
+### 3. Basic summary plots
 ### -------------------------------
 
-# Calculate the proportion of missing genotypes for each sample
-missing_per_sample <- apply(is.na(genotypes), 2, mean)
-
-# Turn into a data frame for plotting
-missing_df <- data.frame(sample = names(missing_per_sample),
-                         missing = missing_per_sample)
-
-# Plot it!
-ggplot(missing_df, aes(x = sample, y = missing)) +
-  geom_col(fill = "steelblue") +
-  coord_flip() +
+# Histogram of FST values
+ggplot(stats, aes(x = Fst_A1_B1)) +
+  geom_histogram(binwidth = 0.01, fill = "steelblue", color = "black") +
   theme_minimal() +
-  labs(title = "Missing Genotype Data per Individual",
-       x = "Sample",
-       y = "Proportion Missing")
+  labs(title = "Distribution of FST values", x = "FST", y = "Count")
 
-### -------------------------------
-### 5. Plot allele frequency distribution
-### -------------------------------
-
-# Calculate allele frequencies for each SNP
-# Note: This is a quick approximation
-af_matrix <- vcfR::maf(vcf, element = 2)  # "maf" = minor allele frequency
-
-# Convert to data frame
-af_df <- data.frame(maf = af_matrix)
-
-# Plot histogram of minor allele frequencies
-ggplot(af_df, aes(x = maf)) +
-  geom_histogram(binwidth = 0.05, fill = "darkgreen", color = "white") +
+# Scatter plot of Pi in A1 vs B1
+ggplot(stats, aes(x = pi_A1, y = pi_B1)) +
+  geom_point(alpha = 0.5) +
   theme_minimal() +
-  labs(title = "Minor Allele Frequency Distribution",  # <-- Students can edit this title
-       x = "Minor Allele Frequency",
-       y = "Number of SNPs")
+  labs(title = "Genetic diversity (Pi) in A1 vs B1", x = "Pi A1", y = "Pi B1")
+
+# Dxy across chromosome
+ggplot(stats, aes(x = mid, y = dxy_A1_B1)) +
+  geom_line(color = "darkgreen") +
+  theme_minimal() +
+  labs(title = "Dxy along scaffold_3", x = "Position", y = "Dxy")
 
 ### -------------------------------
-### Done!
+### 4. Manhattan plot of FST
 ### -------------------------------
 
-# This script gave you a look into how genetic data is structured and explored before analysis!
-# You’ve worked with real SNP data from Daphnia magna and visualized genetic variation.
+# Replace NA or negative FST values with 0
+stats$Fst_A1_B1[is.na(stats$Fst_A1_B1) | stats$Fst_A1_B1 < 0] <- 0
+
+# Manhattan plot coloring by FST value
+ggplot(stats, aes(x = mid, y = Fst_A1_B1, color = Fst_A1_B1)) +
+  geom_point() +
+  scale_color_gradient(low = "black", high = "red") +
+  theme_minimal() +
+  labs(title = "Manhattan Plot of FST on Chromosome 3", x = "Genomic Position", y = "FST")
+
+### -------------------------------
+### 5. Identify high-FST regions
+### -------------------------------
+
+# Create a subset of regions with FST > 0.4
+high_fst <- stats %>%
+  filter(Fst_A1_B1 > 0.2)
+
+# Save them as a variable called high_fst_bed
+high_fst_bed <- high_fst %>% select(scaffold, start, end)
+print(high_fst_bed)
