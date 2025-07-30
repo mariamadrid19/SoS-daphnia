@@ -45,7 +45,7 @@ head(stats)
 # Let's visualize the distribution of FST values.
 # What does the shape of this histogram tell us?
 ggplot(stats, aes(x = FILL_IN)) +  # Fill in the name of the FST column (hint: it's the 9th column of the stats variable)
-  geom_histogram(binwidth = 0.01, fill = "steelblue", color = "black") +
+  geom_histogram(binwidth = 0.01, fill = "steelblue", color = "black") + # you can change the colors, if you want. Go crazy!
   theme_minimal() +
   labs(title = "Distribution of FST values", x = "FST", y = "Count")
 
