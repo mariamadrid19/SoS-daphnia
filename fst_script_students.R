@@ -57,7 +57,7 @@ ggplot(stats, aes(x = FILL_IN, y = FILL_IN)) +  # Fill in the Pi columns for A1 
   labs(title = "Genetic diversity (Pi) in A1 vs B1", x = "Pi A1", y = "Pi B1")
 
 # Dxy measures how different the populations are across the genome
-ggplot(stats, aes(x = mid, y = FILL_IN)) +  # Fill in the Dxy column (y) (hint: the 17th column)
+ggplot(stats, aes(x = mid, y = FILL_IN)) +  # Fill in the Dxy column (y) (hint: the 8th column)
   geom_line(color = "darkgreen") +
   theme_minimal() +
   labs(title = "Dxy along scaffold_3", x = "Position", y = "Dxy")
